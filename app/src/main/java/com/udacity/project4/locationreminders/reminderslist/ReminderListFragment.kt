@@ -3,10 +3,14 @@ package com.udacity.project4.locationreminders.reminderslist
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.observe
-import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
@@ -56,9 +60,9 @@ class ReminderListFragment : BaseFragment() {
 
     private fun observeAuthenticationState() {
         _viewModel.authenticationState.observe(viewLifecycleOwner) { authenticationState ->
-            when(authenticationState) {
+            when (authenticationState) {
                 AuthenticationState.UNAUTHENTICATED -> startActivity(Intent(requireContext(), AuthenticationActivity::class.java))
-                else -> Log.d(TAG, "observeAuthenticationState: Authentication OK")
+                else                                -> Log.d(TAG, "observeAuthenticationState: Authentication OK")
             }
 
         }
@@ -89,6 +93,7 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
                 handleLogoutFlow()
+                _viewModel.removeAllReminders()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -107,6 +112,7 @@ class ReminderListFragment : BaseFragment() {
 
     companion object {
         const val TAG = "ReminderListFragment"
+        const val REQUEST_NOTIFICATION_PERMISSION = 12
     }
 
 }

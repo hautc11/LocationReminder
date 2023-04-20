@@ -1,11 +1,15 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
@@ -19,8 +23,8 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import com.udacity.project4.utils.showSnackBarDirectToSettings
 import org.koin.android.ext.android.inject
-import java.util.Locale
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -48,7 +52,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.btnSave.setOnClickListener {
             onLocationSelected()
         }
-        
+
         return binding.root
     }
 
@@ -61,16 +65,72 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
         setMapStyle()
         setPoiClick()
+        if (isFineLocationAndAccessCoarseLocationGranted()) {
+            enableMyLocationFunction()
+            moveCameraToCurrentLocationOfUser()
+        } else {
+            requestFineLocationAndAccessCoarseLocationPermission()
+        }
+    }
+
+    private fun isFineLocationAndAccessCoarseLocationGranted(): Boolean {
+        val isFineLocationGranted = checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val isAccessCoarseLocationGranted = checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return isFineLocationGranted && isAccessCoarseLocationGranted
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocationFunction() {
         mGoogleMap.isMyLocationEnabled = true
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun moveCameraToCurrentLocationOfUser() {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val latLng = LatLng(location.latitude, location.longitude)
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestFineLocationAndAccessCoarseLocationPermission() {
+        val mPermissionArray = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        requestPermissions(mPermissionArray, REQUEST_FINE_LOCATION_AND_ACCESS_COARSE_LOCATION_CODE)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == REQUEST_FINE_LOCATION_AND_ACCESS_COARSE_LOCATION_CODE) {
+            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                enableMyLocationFunction()
+                moveCameraToCurrentLocationOfUser()
+            } else {
+                showSnackBarDirectToSettings(
+                    binding.root,
+                    requireContext(),
+                    "You must granted location permission to use this function"
+                )
+                return
             }
         }
     }
@@ -100,19 +160,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
-        R.id.normal_map    -> {
+        R.id.normal_map -> {
             true
         }
-        R.id.hybrid_map    -> {
+        R.id.hybrid_map -> {
             true
         }
         R.id.satellite_map -> {
             true
         }
-        R.id.terrain_map   -> {
+        R.id.terrain_map -> {
             true
         }
-        else               -> super.onOptionsItemSelected(item)
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun setMapStyle() {
@@ -134,5 +194,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     companion object {
         const val TAG = "SelectLocationFragment"
+        const val REQUEST_FINE_LOCATION_AND_ACCESS_COARSE_LOCATION_CODE = 1
     }
 }
