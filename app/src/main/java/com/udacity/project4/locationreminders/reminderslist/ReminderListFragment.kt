@@ -93,7 +93,6 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
                 handleLogoutFlow()
-                _viewModel.removeAllReminders()
             }
         }
         return super.onOptionsItemSelected(item)
