@@ -4,39 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#31423B"
     tools:context=".authentication.AuthenticationActivity">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/welcome_to_the_location_reminder_app"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_large"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnEmail"
+        style="@style/FirebaseUI.Button.AccountChooser.EmailButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"
-        android:text="Login Email"
+        android:text="@string/login_by_email"
+        android:textAlignment="center"
+        android:textSize="@dimen/text_size_normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnGoogle"
+        style="@style/FirebaseUI.Button.AccountChooser.GoogleButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="5dp"
-        android:text="Login Google"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/alata"
+        android:text="@string/login_by_google_account"
+        android:textAlignment="center"
+        android:textSize="@dimen/text_size_normal"
         app:layout_constraintBottom_toTopOf="@id/btnEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/map"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
