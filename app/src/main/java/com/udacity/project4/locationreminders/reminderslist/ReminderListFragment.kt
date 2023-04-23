@@ -17,10 +17,12 @@ import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
+import com.udacity.project4.locationreminders.ReminderDescriptionActivity
 import com.udacity.project4.utils.AuthenticationState
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
+import kotlinx.coroutines.flow.callbackFlow
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -55,17 +57,7 @@ class ReminderListFragment : BaseFragment() {
         binding.addReminderFAB.setOnClickListener {
             navigateToAddReminder()
         }
-        observeAuthenticationState()
-    }
 
-    private fun observeAuthenticationState() {
-        _viewModel.authenticationState.observe(viewLifecycleOwner) { authenticationState ->
-            when (authenticationState) {
-                AuthenticationState.UNAUTHENTICATED -> startActivity(Intent(requireContext(), AuthenticationActivity::class.java))
-                else                                -> Log.d(TAG, "observeAuthenticationState: Authentication OK")
-            }
-
-        }
     }
 
     override fun onResume() {
@@ -85,6 +77,8 @@ class ReminderListFragment : BaseFragment() {
 
     private fun setupRecyclerView() {
         val adapter = RemindersListAdapter {
+            val intent = ReminderDescriptionActivity.newIntent(requireContext(), it)
+            startActivity(intent)
         }
         binding.reminderssRecyclerView.setup(adapter)
     }
@@ -100,7 +94,9 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun handleLogoutFlow() {
-        AuthUI.getInstance().signOut(requireContext())
+        AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
+            startActivity(Intent(requireActivity(), AuthenticationActivity::class.java))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -108,10 +104,4 @@ class ReminderListFragment : BaseFragment() {
 //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
     }
-
-    companion object {
-        const val TAG = "ReminderListFragment"
-        const val REQUEST_NOTIFICATION_PERMISSION = 12
-    }
-
 }

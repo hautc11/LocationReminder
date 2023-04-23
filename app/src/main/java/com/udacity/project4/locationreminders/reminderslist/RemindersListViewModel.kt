@@ -19,13 +19,6 @@ class RemindersListViewModel(
     // list that holds the reminder data to be displayed on the UI
     val remindersList = MutableLiveData<List<ReminderDataItem>>()
 
-    val authenticationState = FirebaseUserLiveData().map { user ->
-        if (user != null) {
-            AuthenticationState.AUTHENTICATED
-        } else {
-            AuthenticationState.UNAUTHENTICATED
-        }
-    }
     /**
      * Get all the reminders from the DataSource and add them to the remindersList to be shown on the UI,
      * or show error if any
@@ -35,7 +28,7 @@ class RemindersListViewModel(
         viewModelScope.launch {
             //interacting with the dataSource has to be through a coroutine
             val result = dataSource.getReminders()
-            showLoading.postValue(false)
+            showLoading.value = false
             when (result) {
                 is Result.Success<*> -> {
                     val dataList = ArrayList<ReminderDataItem>()
