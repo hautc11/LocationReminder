@@ -3,20 +3,19 @@ package com.udacity.project4
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
@@ -24,8 +23,9 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -97,33 +97,35 @@ class RemindersActivityTest :
     }
 
     @Test
-    fun test_loadRemindersReturnNullOrEmpty_ExpectedNoDataViewIsShow() {
+    fun test_E2E_addNewReminder() {
         runBlocking {
-            repository.getReminders()
             val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
             dataBindingIdlingResource.monitorActivity(activityScenario)
+
+            // First open, confirm there's no data display
             onView(withId(R.id.noDataTextView)).check((matches(isDisplayed())))
-        }
-    }
 
-    @Test
-    fun test_loadRemindersReturnData_ExpectedRecycleViewIsShow() {
-        runBlocking {
-            repository.saveReminder(
-                ReminderDTO(
-                    title = "Title",
-                    description = "Description",
-                    location = "location",
-                    latitude = 0.0,
-                    longitude = 0.0,
-                    id = "0900"
-                )
-            )
-            repository.getReminders()
-            val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
-            dataBindingIdlingResource.monitorActivity(activityScenario)
-            onView(withId(R.id.reminderssRecyclerView)).check((matches(isDisplayed())))
+            // Click on FAB button to add new reminder
+            onView(withId(R.id.addReminderFAB)).perform(click())
 
+            // Click on "Select Location" section
+            onView(withId(R.id.selectLocation)).perform(click())
+
+            // On google map view -> long click to drop marker
+            onView(withId(R.id.mapView)).perform(longClick())
+
+            // Then press save button.
+            onView(withId(R.id.btnSave)).perform(click())
+
+            // Fill missing parameters
+            onView(withId(R.id.reminderTitle)).perform(replaceText("Title"))
+            onView(withId(R.id.reminderDescription)).perform(replaceText("Description"))
+
+            // Press save reminder button
+            onView(withId(R.id.saveReminder)).perform(click())
+
+            // Verify recycler view is displayed
+            onView(withId(R.id.reminderssRecyclerView)).check(matches(isDisplayed()))
             activityScenario.close()
         }
     }

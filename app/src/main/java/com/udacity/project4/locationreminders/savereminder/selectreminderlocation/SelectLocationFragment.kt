@@ -136,6 +136,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun setPoiClick() {
+        mGoogleMap.setOnMapLongClickListener {
+            pointMarker?.remove()
+
+            pointMarker = mGoogleMap.addMarker(
+                MarkerOptions()
+                    .position(it)
+                    .title("My Selected Location")
+            )
+
+            pointMarker?.showInfoWindow()
+
+            _viewModel.apply {
+                reminderSelectedLocationStr.value = "My Selected Location"
+                latitude.value = it.latitude
+                longitude.value = it.longitude
+            }
+        }
+
         mGoogleMap.setOnPoiClickListener { poi ->
             pointMarker?.remove()
 
@@ -161,15 +179,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            mGoogleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            mGoogleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            mGoogleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            mGoogleMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
