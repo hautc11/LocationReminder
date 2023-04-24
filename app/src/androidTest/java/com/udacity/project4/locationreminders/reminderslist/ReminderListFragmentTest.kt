@@ -13,11 +13,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
-import org.koin.test.AutoCloseKoinTest
 import org.koin.test.KoinTest
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
