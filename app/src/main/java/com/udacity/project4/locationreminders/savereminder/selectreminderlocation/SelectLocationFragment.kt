@@ -23,7 +23,6 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import com.udacity.project4.utils.showSnackBarDirectToSettings
 import org.koin.android.ext.android.inject
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -125,11 +124,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 enableMyLocationFunction()
                 moveCameraToCurrentLocationOfUser()
             } else {
-                showSnackBarDirectToSettings(
-                    binding.root,
-                    requireContext(),
-                    "You must granted location permission to use this function"
-                )
                 return
             }
         }

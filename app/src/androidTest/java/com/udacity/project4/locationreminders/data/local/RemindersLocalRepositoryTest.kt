@@ -105,7 +105,7 @@ class RemindersLocalRepositoryTest {
 			val result = reminderLocalRepository.getReminder(reminderDTODataSample.id) as Result.Error
 
 			// THEN - The message error is throws
-			assertThat(result.message, `is`(notNullValue()))
+			assertThat(result.message, `is`("Reminder not found!"))
 		}
 	}
 }
